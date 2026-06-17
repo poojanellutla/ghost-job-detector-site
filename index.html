@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghost Job Detector — Case File on Suspicious Hiring</title>
+<meta name="description" content="A public case file tracking companies whose job postings show signs of being ghost jobs — recycled, never-filled listings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F4ED;
+    --paper-dark: #EDE8DB;
+    --ink: #1A1A18;
+    --ink-soft: #4A4742;
+    --ink-faint: #8A8578;
+    --red: #C41E3A;
+    --red-soft: #E8C9CE;
+    --amber: #B8860B;
+    --amber-soft: #EEDFB8;
+    --sage: #5F7A5C;
+    --sage-soft: #D6E0D2;
+    --rule: #D8D2C2;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.025) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 22px 0 18px;
+  }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .masthead {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+  }
+  .masthead .dot { color: var(--red); }
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .subhead {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ===== HERO / LEAD CASE ===== */
+  .hero {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 42px;
+    line-height: 1.12;
+    font-weight: 600;
+    max-width: 560px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--red);
+  }
+  .hero p.lede {
+    font-size: 16.5px;
+    color: var(--ink-soft);
+    margin-top: 18px;
+    max-width: 480px;
+  }
+
+  .case-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 26px 28px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    position: relative;
+  }
+  .case-card .case-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .case-card .case-company {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .case-card .case-role {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .case-card .case-score-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .case-card .case-score {
+    font-family: var(--mono);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--red);
+  }
+  .stamp {
+    display: inline-block;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 2px solid currentColor;
+    border-radius: 3px;
+    transform: rotate(-3deg);
+    position: relative;
+  }
+  .stamp::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid currentColor;
+    opacity: 0.4;
+    border-radius: 1px;
+  }
+  .stamp.critical { color: var(--red); }
+  .stamp.high { color: var(--amber); }
+  .stamp.medium { color: var(--amber); }
+  .stamp.low { color: var(--sage); }
+
+  .case-card .case-flags {
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .case-card .case-flags .flag-item {
+    display: block;
+    padding-left: 14px;
+    position: relative;
+  }
+  .case-card .case-flags .flag-item::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--red);
+  }
+
+  /* ===== KPI STRIP ===== */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--rule);
+  }
+  .kpi {
+    padding: 26px 28px;
+    border-right: 1px solid var(--rule);
+  }
+  .kpi:last-child { border-right: none; }
+  .kpi-value {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+  }
+  .kpi-value.red { color: var(--red); }
+  .kpi-label {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  section.block {
+    padding: 44px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+  }
+  .section-note {
+    font-size: 13px;
+    color: var(--ink-faint);
+    max-width: 320px;
+    text-align: right;
+  }
+
+  /* ===== LEADERBOARD ===== */
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: 26px 200px 1fr 70px 90px;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--paper-dark);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .leaderboard-row:hover { background: rgba(196,30,58,0.04); }
+  .leaderboard-rank {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .leaderboard-name {
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+  .leaderboard-bar-track {
+    height: 18px;
+    background: var(--paper-dark);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .leaderboard-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .leaderboard-score {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 14px;
+    text-align: right;
+  }
+  .leaderboard-tier-tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .tag-critical { background: var(--red-soft); color: var(--red); }
+  .tag-high { background: var(--amber-soft); color: var(--amber); }
+  .tag-medium { background: var(--amber-soft); color: var(--amber); opacity: 0.75; }
+  .tag-low { background: var(--sage-soft); color: var(--sage); }
+
+  /* ===== TIER BREAKDOWN (donut substitute: horizontal stacked + legend) ===== */
+  .tier-overview {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+  .tier-ring {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+  }
+  .tier-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .tier-legend-row {
+    display: grid;
+    grid-template-columns: 14px 1fr auto auto;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .swatch {
+    width: 12px; height: 12px;
+    border-radius: 2px;
+  }
+  .tier-legend-count {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .tier-legend-pct {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    width: 48px;
+    text-align: right;
+  }
+
+  /* ===== FILTERS ===== */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 7px 14px;
+    border: 1.5px solid var(--ink);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.12s ease;
+  }
+  .filter-chip.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .filter-chip:hover:not(.active) {
+    background: var(--paper-dark);
+  }
+
+  /* ===== TABLE ===== */
+  table.case-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  table.case-table thead th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    border-bottom: 2px solid var(--ink);
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  table.case-table thead th:hover { color: var(--ink); }
+  table.case-table tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--paper-dark);
+    vertical-align: top;
+  }
+  table.case-table tbody tr:hover { background: rgba(196,30,58,0.03); }
+  .flags-cell {
+    font-size: 12px;
+    color: var(--ink-soft);
+    max-width: 260px;
+  }
+  .score-cell {
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 36px 0 60px;
+  }
+  footer .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  footer h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  footer .disclaimer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 760px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .kpi:nth-child(2) { border-right: none; }
+    .tier-overview { grid-template-columns: 1fr; }
+    .leaderboard-row { grid-template-columns: 20px 110px 1fr 50px; }
+    .leaderboard-row .leaderboard-tier-tag { display: none; }
+    footer .footer-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; }
+    table.case-table { font-size: 12px; }
+    .flags-cell { max-width: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="header-row">
+      <div class="masthead">GHOST JOB DETECTOR<span class="dot">.</span></div>
+      <div class="header-meta" id="last-updated">CASE FILE — UPDATED —</div>
+    </div>
+    <div class="subhead">Tracking job postings that show signs of never being filled, real scrape data, scored by an open algorithm.</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-label">Lead case</div>
+    <div class="hero-grid">
+      <div>
+        <h1>Some companies post jobs they <em>never intend to fill.</em></h1>
+        <p class="lede">This is a running case file. Every listing below was scraped from public job boards, then scored against five signals known to indicate a "ghost job" — a posting kept open to build a resume pipeline, not to hire.</p>
+      </div>
+      <div class="case-card" id="lead-case">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </section>
+
+  <div class="kpi-strip" id="kpi-strip">
+    <!-- filled by JS -->
+  </div>
+
+  <section class="block">
+    <div class="section-head">
+      <h2>The leaderboard</h2>
+      <div class="section-note">Ranked by Ghost Index — the average score across every role we've tracked at that company.</div>
+    </div>
+    <div class="filter-bar" id="leaderboard-filters"></div>
+    <div id="leaderboard"></div>
+  </section>
+
+  <section class="block">
+    <div class="section-head">
+      <h2>Tier breakdown</h2>
+      <div class="section-note">How the 28 tracked roles split across risk tiers.</div>
+    </div>
+    <div class="tier-overview">
+      <svg class="tier-ring" id="tier-ring" viewBox="0 0 200 200"></svg>
+      <div class="tier-legend" id="tier-legend"></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="section-head">
+      <h2>Full case log</h2>
+      <div class="section-note">Click a column to sort. Click a row for the original posting link.</div>
+    </div>
+    <div class="filter-bar" id="table-filters"></div>
+    <div style="overflow-x:auto;">
+      <table class="case-table" id="case-table">
+        <thead>
+          <tr>
+            <th data-key="company">Company</th>
+            <th data-key="title">Role</th>
+            <th data-key="ghost_score">Score</th>
+            <th data-key="ghost_tier">Tier</th>
+            <th data-key="repost_count">Reposts</th>
+            <th data-key="days_active">Days Open</th>
+            <th>Flags</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h3>How scoring works</h3>
+        <p>Each role gets a 0–100 Ghost Score from five weighted signals: repost frequency, listing longevity, salary range width, description vagueness, and rapid re-posting. Full methodology and source code are on GitHub.</p>
+      </div>
+      <div>
+        <h3>About this data</h3>
+        <p>This case file blends a 90-day simulated history (to demonstrate the pipeline immediately) with real, ongoing scrapes from public job boards. The scoring algorithm runs identically on both — nothing about the analysis itself is simulated.</p>
+      </div>
+    </div>
+    <div class="disclaimer">
+      Company names and scores reflect posting <em>behavior patterns only</em> (frequency, duration, salary disclosure, description detail) — not a claim about any company's actual hiring intent. Built as a data analytics portfolio project. Source: Python scraper + scoring engine, visualized here and in a companion Power BI dashboard.
+    </div>
+  </footer>
+</div>
+
+<script src="embedded_data.js"></script>
+<script>
+const TIER_COLOR = {
+  Critical: { fill: "#C41E3A", soft: "#E8C9CE", tag: "tag-critical", stamp: "critical" },
+  High:     { fill: "#B8860B", soft: "#EEDFB8", tag: "tag-high",     stamp: "high" },
+  Medium:   { fill: "#C9A227", soft: "#EEDFB8", tag: "tag-medium",   stamp: "medium" },
+  Low:      { fill: "#5F7A5C", soft: "#D6E0D2", tag: "tag-low",      stamp: "low" },
+};
+
+const scored = SITE_DATA.scored;
+const companies = SITE_DATA.companies.slice().sort((a,b) => b.ghost_index - a.ghost_index);
+
+document.getElementById("last-updated").textContent =
+  "CASE FILE — UPDATED " + (scored.reduce((max, r) => r.last_seen_date > max ? r.last_seen_date : max, "2026-01-01"));
+
+// ---------- LEAD CASE ----------
+function renderLeadCase() {
+  const top = scored.slice().sort((a,b) => b.ghost_score - a.ghost_score)[0];
+  const tc = TIER_COLOR[top.ghost_tier];
+  const flags = top.flags.split(";").map(f => f.trim()).filter(f => f && f !== "None");
+  document.getElementById("lead-case").innerHTML = `
+    <div class="case-label">Highest scoring case on file</div>
+    <div class="case-company">${top.company}</div>
+    <div class="case-role">${top.title} · ${top.location}</div>
+    <div class="case-score-row">
+      <div class="case-score">${top.ghost_score.toFixed(1)}</div>
+      <span class="stamp ${tc.stamp}">${top.ghost_tier}</span>
+    </div>
+    <div class="case-flags">
+      ${flags.map(f => `<span class="flag-item">${f}</span>`).join("")}
+    </div>
+  `;
+}
+
+// ---------- KPI STRIP ----------
+function renderKPIs() {
+  const avg = scored.reduce((s,r) => s + r.ghost_score, 0) / scored.length;
+  const critical = scored.filter(r => r.ghost_tier === "Critical").length;
+  const highRisk = scored.filter(r => r.ghost_tier === "Critical" || r.ghost_tier === "High").length;
+  const pct = Math.round((highRisk / scored.length) * 100);
+
+  const kpis = [
+    { value: avg.toFixed(1), label: "Average ghost score", red: false },
+    { value: scored.length, label: "Roles tracked", red: false },
+    { value: critical, label: "Critical tier roles", red: true },
+    { value: pct + "%", label: "Flagged high or critical", red: false },
+  ];
+
+  document.getElementById("kpi-strip").innerHTML = kpis.map(k => `
+    <div class="kpi">
+      <div class="kpi-value ${k.red ? 'red' : ''}">${k.value}</div>
+      <div class="kpi-label">${k.label}</div>
+    </div>
+  `).join("");
+}
+
+// ---------- LEADERBOARD ----------
+let leaderboardFilter = "All";
+
+function renderLeaderboardFilters() {
+  const tiers = ["All", "Critical", "High", "Medium", "Low"];
+  document.getElementById("leaderboard-filters").innerHTML = tiers.map(t => `
+    <button class="filter-chip ${t === leaderboardFilter ? 'active' : ''}" data-tier="${t}">${t}</button>
+  `).join("");
+  document.querySelectorAll("#leaderboard-filters .filter-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      leaderboardFilter = btn.dataset.tier;
+      renderLeaderboardFilters();
+      renderLeaderboard();
+    });
+  });
+}
+
+function renderLeaderboard() {
+  const maxScore = Math.max(...companies.map(c => c.ghost_index));
+  const filtered = leaderboardFilter === "All"
+    ? companies
+    : companies.filter(c => c.ghost_tier === leaderboardFilter);
+
+  document.getElementById("leaderboard").innerHTML = filtered.map((c, i) => {
+    const tc = TIER_COLOR[c.ghost_tier];
+    const widthPct = Math.max((c.ghost_index / maxScore) * 100, 3);
+    return `
+      <div class="leaderboard-row">
+        <div class="leaderboard-rank">${String(i+1).padStart(2,'0')}</div>
+        <div class="leaderboard-name">${c.company}</div>
+        <div class="leaderboard-bar-track">
+          <div class="leaderboard-bar-fill" style="width:${widthPct}%; background:${tc.fill};"></div>
+        </div>
+        <div class="leaderboard-score">${c.ghost_index.toFixed(1)}</div>
+        <div class="leaderboard-tier-tag ${tc.tag}">${c.ghost_tier}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ---------- TIER RING (pure SVG donut) ----------
+function renderTierRing() {
+  const order = ["Critical", "High", "Medium", "Low"];
+  const counts = order.map(t => scored.filter(r => r.ghost_tier === t).length);
+  const total = counts.reduce((a,b) => a+b, 0);
+
+  const cx = 100, cy = 100, r = 70, strokeWidth = 30;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  let paths = "";
+
+  order.forEach((tier, i) => {
+    const count = counts[i];
+    if (count === 0) return;
+    const frac = count / total;
+    const dash = frac * circumference;
+    const gap = circumference - dash;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${TIER_COLOR[tier].fill}" stroke-width="${strokeWidth}"
+      stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-offset}"
+      transform="rotate(-90 ${cx} ${cy})" />`;
+    offset += dash;
+  });
+
+  document.getElementById("tier-ring").innerHTML = `
+    ${paths}
+    <text x="100" y="95" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="28" fill="#1A1A18">${total}</text>
+    <text x="100" y="115" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#8A8578" letter-spacing="0.05em">ROLES</text>
+  `;
+
+  document.getElementById("tier-legend").innerHTML = order.map((tier, i) => {
+    const count = counts[i];
+    const pct = total ? Math.round((count/total)*100) : 0;
+    return `
+      <div class="tier-legend-row">
+        <div class="swatch" style="background:${TIER_COLOR[tier].fill};"></div>
+        <div>${tier}</div>
+        <div class="tier-legend-count">${count}</div>
+        <div class="tier-legend-pct">${pct}%</div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ---------- TABLE ----------
+let tableFilter = "All";
+let sortKey = "ghost_score";
+let sortDir = -1;
+
+function renderTableFilters() {
+  const tiers = ["All", "Critical", "High", "Medium", "Low"];
+  document.getElementById("table-filters").innerHTML = tiers.map(t => `
+    <button class="filter-chip ${t === tableFilter ? 'active' : ''}" data-tier="${t}">${t}</button>
+  `).join("");
+  document.querySelectorAll("#table-filters .filter-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      tableFilter = btn.dataset.tier;
+      renderTableFilters();
+      renderTable();
+    });
+  });
+}
+
+function renderTable() {
+  let rows = tableFilter === "All" ? scored.slice() : scored.filter(r => r.ghost_tier === tableFilter);
+  rows.sort((a,b) => {
+    const av = a[sortKey], bv = b[sortKey];
+    if (typeof av === "number") return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+
+  document.getElementById("table-body").innerHTML = rows.map(r => {
+    const tc = TIER_COLOR[r.ghost_tier];
+    const flags = r.flags === "None" ? "—" : r.flags;
+    return `
+      <tr onclick="window.open('${r.url}', '_blank')" style="cursor:pointer;">
+        <td><strong>${r.company}</strong></td>
+        <td>${r.title}</td>
+        <td class="score-cell" style="color:${tc.fill};">${r.ghost_score.toFixed(1)}</td>
+        <td><span class="leaderboard-tier-tag ${tc.tag}">${r.ghost_tier}</span></td>
+        <td>${r.repost_count}</td>
+        <td>${r.days_active}</td>
+        <td class="flags-cell">${flags}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+document.querySelectorAll("#case-table thead th[data-key]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key;
+    if (sortKey === key) { sortDir *= -1; } else { sortKey = key; sortDir = -1; }
+    renderTable();
+  });
+});
+
+// ---------- INIT ----------
+renderLeadCase();
+renderKPIs();
+renderLeaderboardFilters();
+renderLeaderboard();
+renderTierRing();
+renderTableFilters();
+renderTable();
+</script>
+
+</body>
+</html>
